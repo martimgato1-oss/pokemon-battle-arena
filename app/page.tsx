@@ -9,7 +9,7 @@ export default function HomePage() {
         <nav className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <Flame className="h-8 w-8 text-orange-500" />
-            <h1 className="text-2xl font-bold">Creature Battle Arena</h1>
+            <h1 className="text-2xl font-bold">Pokémon Battle Arena</h1>
           </div>
           <div className="space-x-4">
             <Link
@@ -36,7 +36,7 @@ export default function HomePage() {
           </h2>
 
           <p className="text-xl text-gray-300">
-            Choose your starter, train powerful creatures, and battle players worldwide in this epic turn-based MMORPG
+            Choose your starter Pokémon, train and evolve them, and battle trainers worldwide in this epic turn-based MMORPG
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -85,7 +85,7 @@ export default function HomePage() {
             <Trophy className="h-12 w-12 text-yellow-500 mb-4" />
             <h4 className="text-xl font-bold mb-2">Battle System</h4>
             <p className="text-gray-400">
-              Engage in strategic turn-based battles against wild creatures and other players. Master type advantages and devastating moves!
+              Engage in strategic turn-based battles against wild Pokémon and other trainers. Master type advantages and devastating moves!
             </p>
           </div>
 
@@ -101,7 +101,7 @@ export default function HomePage() {
             <Flame className="h-12 w-12 text-red-500 mb-4" />
             <h4 className="text-xl font-bold mb-2">Evolution</h4>
             <p className="text-gray-400">
-              Train your creatures, level them up, and unlock powerful evolutions to create the ultimate team!
+              Train your Pokémon, level them up, and unlock powerful evolutions to create the ultimate team!
             </p>
           </div>
         </div>
@@ -121,8 +121,8 @@ export default function HomePage() {
               <div className="text-gray-400 mt-2">Battles Fought</div>
             </div>
             <div>
-              <div className="text-4xl font-bold text-green-400">120+</div>
-              <div className="text-gray-400 mt-2">Unique Creatures</div>
+              <div className="text-4xl font-bold text-green-400">150+</div>
+              <div className="text-gray-400 mt-2">Pokémon Species</div>
             </div>
           </div>
         </div>
@@ -131,9 +131,14 @@ export default function HomePage() {
       {/* Footer */}
       <footer className="container mx-auto px-4 py-8 border-t border-white/10">
         <div className="flex flex-col md:flex-row justify-between items-center">
-          <p className="text-gray-400 text-sm">
-            © 2025 Creature Battle Arena. All rights reserved.
-          </p>
+          <div className="text-center md:text-left">
+            <p className="text-gray-400 text-sm">
+              © 2025 Pokémon Battle Arena - Fan Project
+            </p>
+            <p className="text-gray-500 text-xs mt-1">
+              Pokémon © Nintendo/Creatures Inc./GAME FREAK Inc. This is an unofficial fan-made project.
+            </p>
+          </div>
           <div className="flex gap-6 mt-4 md:mt-0">
             <Link href="/terms" className="text-gray-400 hover:text-white text-sm transition">
               Terms of Service

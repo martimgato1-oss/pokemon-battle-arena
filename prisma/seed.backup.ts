@@ -329,17 +329,17 @@ async function main() {
     },
   })
 
-  const squirtle = await prisma.creatureSpecies.create({
+  const aquafin = await prisma.creatureSpecies.create({
     data: {
-      name: 'Squirtle',
-      description: 'A tiny turtle Pokémon with a tough shell',
+      name: 'Aquafin',
+      description: 'A sleek water creature with powerful fins',
       element: Element.WATER,
       rarity: Rarity.UNCOMMON,
       baseHp: 50,
       baseAtk: 45,
       baseDef: 52,
       baseSpd: 53,
-      evolvesTo: 'Wartortle',
+      evolvesTo: 'Tidalord',
       evolutionLevel: 16,
       spriteUrl: '/sprites/aquafin.png',
       iconUrl: '/icons/aquafin.png',
@@ -354,17 +354,17 @@ async function main() {
     },
   })
 
-  const bulbasaur = await prisma.creatureSpecies.create({
+  const leafox = await prisma.creatureSpecies.create({
     data: {
-      name: 'Bulbasaur',
-      description: 'A grass/poison-type Pokémon with a bulb on its back',
+      name: 'Leafox',
+      description: 'A cunning grass creature covered in leaves',
       element: Element.GRASS,
       rarity: Rarity.UNCOMMON,
       baseHp: 42,
       baseAtk: 48,
       baseDef: 50,
       baseSpd: 60,
-      evolvesTo: 'Ivysaur',
+      evolvesTo: 'Verdantail',
       evolutionLevel: 16,
       spriteUrl: '/sprites/leafox.png',
       iconUrl: '/icons/leafox.png',
@@ -379,17 +379,17 @@ async function main() {
     },
   })
 
-  const pikachu = await prisma.creatureSpecies.create({
+  const voltail = await prisma.creatureSpecies.create({
     data: {
-      name: 'Pikachu',
-      description: 'An electric mouse Pokémon with a lightning bolt-shaped tail',
+      name: 'Voltail',
+      description: 'An energetic electric creature with a charged tail',
       element: Element.ELECTRIC,
       rarity: Rarity.UNCOMMON,
       baseHp: 40,
       baseAtk: 50,
       baseDef: 40,
       baseSpd: 70,
-      evolvesTo: 'Raichu',
+      evolvesTo: 'Thunderex',
       evolutionLevel: 16,
       spriteUrl: '/sprites/voltail.png',
       iconUrl: '/icons/voltail.png',
@@ -403,17 +403,17 @@ async function main() {
     },
   })
 
-  const geodude = await prisma.creatureSpecies.create({
+  const rockjaw = await prisma.creatureSpecies.create({
     data: {
-      name: 'Geodude',
-      description: 'A rock-type Pokémon that resembles a boulder with arms',
+      name: 'Rockjaw',
+      description: 'A sturdy earth creature with a rock-hard jaw',
       element: Element.EARTH,
       rarity: Rarity.UNCOMMON,
       baseHp: 55,
       baseAtk: 55,
       baseDef: 60,
       baseSpd: 30,
-      evolvesTo: 'Graveler',
+      evolvesTo: 'Boulderfang',
       evolutionLevel: 18,
       spriteUrl: '/sprites/rockjaw.png',
       iconUrl: '/icons/rockjaw.png',
@@ -427,17 +427,17 @@ async function main() {
     },
   })
 
-  const pidgey = await prisma.creatureSpecies.create({
+  const zephyra = await prisma.creatureSpecies.create({
     data: {
-      name: 'Pidgey',
-      description: 'A small bird Pokémon',
+      name: 'Zephyra',
+      description: 'A graceful air creature that rides the wind',
       element: Element.AIR,
       rarity: Rarity.UNCOMMON,
       baseHp: 48,
       baseAtk: 42,
       baseDef: 45,
       baseSpd: 65,
-      evolvesTo: 'Pidgeotto',
+      evolvesTo: 'Tempestra',
       evolutionLevel: 16,
       spriteUrl: '/sprites/zephyra.png',
       iconUrl: '/icons/zephyra.png',
@@ -454,15 +454,15 @@ async function main() {
   // Evolutions
   await prisma.creatureSpecies.create({
     data: {
-      name: 'Charmeleon',
-      description: 'The evolved form of Charmander',
+      name: 'Infernix',
+      description: 'The evolved form of Emberwing, with massive fiery wings',
       element: Element.FIRE,
       rarity: Rarity.RARE,
       baseHp: 70,
       baseAtk: 80,
       baseDef: 65,
       baseSpd: 90,
-      evolvesFrom: charmander.id,
+      evolvesFrom: emberwing.id,
       spriteUrl: '/sprites/infernix.png',
       iconUrl: '/icons/infernix.png',
       learnset: [
@@ -478,15 +478,15 @@ async function main() {
 
   await prisma.creatureSpecies.create({
     data: {
-      name: 'Wartortle',
-      description: 'The evolved form of Squirtle',
+      name: 'Tidalord',
+      description: 'The evolved form of Aquafin, master of the seas',
       element: Element.WATER,
       rarity: Rarity.RARE,
       baseHp: 80,
       baseAtk: 70,
       baseDef: 80,
       baseSpd: 75,
-      evolvesFrom: squirtle.id,
+      evolvesFrom: aquafin.id,
       spriteUrl: '/sprites/tidalord.png',
       iconUrl: '/icons/tidalord.png',
       learnset: [
@@ -502,15 +502,15 @@ async function main() {
 
   await prisma.creatureSpecies.create({
     data: {
-      name: 'Ivysaur',
-      description: 'The evolved form of Bulbasaur',
+      name: 'Verdantail',
+      description: 'The evolved form of Leafox, covered in lush foliage',
       element: Element.GRASS,
       rarity: Rarity.RARE,
       baseHp: 65,
       baseAtk: 75,
       baseDef: 75,
       baseSpd: 85,
-      evolvesFrom: bulbasaur.id,
+      evolvesFrom: leafox.id,
       spriteUrl: '/sprites/verdantail.png',
       iconUrl: '/icons/verdantail.png',
       learnset: [
@@ -526,8 +526,8 @@ async function main() {
   // Common wild creatures
   await prisma.creatureSpecies.create({
     data: {
-      name: 'Caterpie',
-      description: 'A bug-type Pokémon that resembles a caterpillar',
+      name: 'Beefly',
+      description: 'A small flying insect creature',
       element: Element.AIR,
       rarity: Rarity.COMMON,
       baseHp: 35,
@@ -545,8 +545,8 @@ async function main() {
 
   await prisma.creatureSpecies.create({
     data: {
-      name: 'Rattata',
-      description: 'A normal-type rat Pokémon',
+      name: 'Sparkkit',
+      description: 'A playful electric creature that sparks when happy',
       element: Element.ELECTRIC,
       rarity: Rarity.COMMON,
       baseHp: 38,
@@ -687,13 +687,13 @@ async function main() {
       spawns: {
         create: [
           {
-            speciesId: bulbasaur.id,
+            speciesId: leafox.id,
             spawnRate: 0.3,
             minLevel: 2,
             maxLevel: 6,
           },
           {
-            speciesId: (await prisma.creatureSpecies.findUnique({ where: { name: 'Caterpie' } }))!.id,
+            speciesId: (await prisma.creatureSpecies.findUnique({ where: { name: 'Beefly' } }))!.id,
             spawnRate: 0.5,
             minLevel: 1,
             maxLevel: 5,
@@ -730,7 +730,7 @@ async function main() {
       spawns: {
         create: [
           {
-            speciesId: squirtle.id,
+            speciesId: aquafin.id,
             spawnRate: 0.4,
             minLevel: 5,
             maxLevel: 12,
@@ -767,19 +767,19 @@ async function main() {
       spawns: {
         create: [
           {
-            speciesId: pikachu.id,
+            speciesId: voltail.id,
             spawnRate: 0.25,
             minLevel: 8,
             maxLevel: 14,
           },
           {
-            speciesId: geodude.id,
+            speciesId: rockjaw.id,
             spawnRate: 0.35,
             minLevel: 8,
             maxLevel: 15,
           },
           {
-            speciesId: (await prisma.creatureSpecies.findUnique({ where: { name: 'Rattata' } }))!.id,
+            speciesId: (await prisma.creatureSpecies.findUnique({ where: { name: 'Sparkkit' } }))!.id,
             spawnRate: 0.4,
             minLevel: 7,
             maxLevel: 12,

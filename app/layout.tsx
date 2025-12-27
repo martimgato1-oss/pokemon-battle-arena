@@ -5,8 +5,8 @@ import './globals.css'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Creature Battle Arena - MMORPG Game',
-  description: 'Battle, evolve, and conquer in the ultimate creature battle arena',
+  title: 'Pokémon Battle Arena - Fan MMORPG',
+  description: 'Unofficial Pokémon fan game - Battle, train, and evolve your Pokémon in this turn-based MMORPG',
 }
 
 export default function RootLayout({
