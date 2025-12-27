@@ -1,0 +1,587 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============ AUTHENTICATION & USER ============
+
+model User {
+  id                String    @id @default(cuid())
+  email             String    @unique
+  emailVerified     DateTime?
+  passwordHash      String
+  nickname          String    @unique
+  birthDate         DateTime
+  avatar            String?
+  role              Role      @default(PLAYER)
+
+  // Game Stats
+  level             Int       @default(1)
+  experience        Int       @default(0)
+  coins             Int       @default(500)
+  eloRating         Int       @default(1000)
+
+  // Status
+  isBanned          Boolean   @default(false)
+  isMuted           Boolean   @default(false)
+  mutedUntil        DateTime?
+  lastLogin         DateTime?
+
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  // Relations
+  creatures         UserCreature[]
+  inventory         InventoryItem[]
+  battlesAsPlayer1  Battle[]       @relation("Player1Battles")
+  battlesAsPlayer2  Battle[]       @relation("Player2Battles")
+  chatMessages      ChatMessage[]
+  achievements      UserAchievement[]
+  eventParticipations EventParticipation[]
+  reports           Report[]       @relation("ReportedBy")
+  reportsReceived   Report[]       @relation("ReportedUser")
+
+  @@index([eloRating(sort: Desc)])
+  @@index([level(sort: Desc)])
+}
+
+enum Role {
+  PLAYER
+  MODERATOR
+  ADMIN
+}
+
+model PasswordReset {
+  id        String   @id @default(cuid())
+  email     String
+  token     String   @unique
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([token])
+}
+
+// ============ CREATURES ============
+
+model CreatureSpecies {
+  id            String   @id @default(cuid())
+  name          String   @unique
+  description   String
+  element       Element
+  rarity        Rarity   @default(COMMON)
+
+  // Base Stats (at level 1)
+  baseHp        Int
+  baseAtk       Int
+  baseDef       Int
+  baseSpd       Int
+
+  // Evolution
+  evolvesFrom   String?
+  evolvesTo     String?
+  evolutionLevel Int?
+  evolutionItem  String?
+
+  // Visuals
+  spriteUrl     String
+  iconUrl       String
+
+  // Learnset (JSON: [{level: 5, moveId: "ember"}, ...])
+  learnset      Json
+
+  // Availability
+  isStarter     Boolean  @default(false)
+  isEventOnly   Boolean  @default(false)
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relations
+  userCreatures UserCreature[]
+  areaSpawns    AreaSpawn[]
+
+  @@index([element])
+  @@index([isStarter])
+}
+
+enum Element {
+  FIRE
+  WATER
+  GRASS
+  ELECTRIC
+  EARTH
+  AIR
+  ICE
+  DARK
+  LIGHT
+  NEUTRAL
+}
+
+enum Rarity {
+  COMMON
+  UNCOMMON
+  RARE
+  EPIC
+  LEGENDARY
+  MYTHICAL
+}
+
+model UserCreature {
+  id            String   @id @default(cuid())
+  userId        String
+  speciesId     String
+
+  // Individual Stats
+  nickname      String?
+  level         Int      @default(1)
+  experience    Int      @default(0)
+
+  currentHp     Int
+  maxHp         Int
+  atk           Int
+  def           Int
+  spd           Int
+
+  // IVs (Individual Values: 0-31)
+  ivHp          Int      @default(15)
+  ivAtk         Int      @default(15)
+  ivDef         Int      @default(15)
+  ivSpd         Int      @default(15)
+
+  // EVs (Effort Values: 0-252)
+  evHp          Int      @default(0)
+  evAtk         Int      @default(0)
+  evDef         Int      @default(0)
+  evSpd         Int      @default(0)
+
+  // Moves (array of move IDs)
+  moves         String[]
+
+  // Status
+  status        CreatureStatus @default(HEALTHY)
+  isShiny       Boolean  @default(false)
+  isFavorite    Boolean  @default(false)
+
+  obtainedAt    DateTime @default(now())
+
+  // Relations
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  species       CreatureSpecies @relation(fields: [speciesId], references: [id])
+
+  @@index([userId])
+  @@index([speciesId])
+}
+
+enum CreatureStatus {
+  HEALTHY
+  FAINTED
+  POISONED
+  BURNED
+  PARALYZED
+  FROZEN
+  ASLEEP
+}
+
+model Move {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String
+  element     Element
+  type        MoveType
+
+  power       Int      // 0 for status moves
+  accuracy    Int      // 0-100
+  powerPoints Int      // Max uses per battle
+  priority    Int      @default(0)
+
+  // Effects (JSON: {type: "damage", value: 50} or {type: "status", status: "burn", chance: 30})
+  effects     Json
+
+  createdAt   DateTime @default(now())
+
+  @@index([element])
+}
+
+enum MoveType {
+  PHYSICAL
+  SPECIAL
+  STATUS
+}
+
+// ============ ITEMS ============
+
+model Item {
+  id            String   @id @default(cuid())
+  name          String   @unique
+  description   String
+  type          ItemType
+
+  price         Int      // 0 if not purchasable
+  isPurchasable Boolean  @default(true)
+
+  // Effects (JSON: {type: "heal", value: 20} or {type: "evolve", speciesId: "xxx"})
+  effects       Json
+
+  iconUrl       String
+  rarity        Rarity   @default(COMMON)
+
+  createdAt     DateTime @default(now())
+
+  // Relations
+  inventoryItems InventoryItem[]
+  areaDrops     AreaDrop[]
+}
+
+enum ItemType {
+  HEALING
+  REVIVE
+  EVOLUTION
+  BOOST
+  CAPTURE
+  COSMETIC
+}
+
+model InventoryItem {
+  id        String   @id @default(cuid())
+  userId    String
+  itemId    String
+  quantity  Int      @default(1)
+
+  obtainedAt DateTime @default(now())
+
+  // Relations
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  item      Item     @relation(fields: [itemId], references: [id])
+
+  @@unique([userId, itemId])
+  @@index([userId])
+}
+
+// ============ MAP & AREAS ============
+
+model Area {
+  id              String   @id @default(cuid())
+  name            String   @unique
+  description     String
+  minLevel        Int      @default(1)
+  maxLevel        Int      @default(10)
+
+  iconUrl         String
+  backgroundUrl   String
+
+  isUnlocked      Boolean  @default(true)
+  unlockRequirement Json?  // {type: "level", value: 10} or {type: "achievement", id: "xxx"}
+
+  createdAt       DateTime @default(now())
+
+  // Relations
+  spawns          AreaSpawn[]
+  drops           AreaDrop[]
+  battles         Battle[]
+}
+
+model AreaSpawn {
+  id          String   @id @default(cuid())
+  areaId      String
+  speciesId   String
+
+  spawnRate   Float    // 0.0 - 1.0 (percentage)
+  minLevel    Int
+  maxLevel    Int
+
+  // Relations
+  area        Area     @relation(fields: [areaId], references: [id], onDelete: Cascade)
+  species     CreatureSpecies @relation(fields: [speciesId], references: [id])
+
+  @@unique([areaId, speciesId])
+  @@index([areaId])
+}
+
+model AreaDrop {
+  id          String   @id @default(cuid())
+  areaId      String
+  itemId      String
+
+  dropRate    Float    // 0.0 - 1.0
+  minQuantity Int      @default(1)
+  maxQuantity Int      @default(1)
+
+  // Relations
+  area        Area     @relation(fields: [areaId], references: [id], onDelete: Cascade)
+  item        Item     @relation(fields: [itemId], references: [id])
+
+  @@unique([areaId, itemId])
+  @@index([areaId])
+}
+
+// ============ BATTLES ============
+
+model Battle {
+  id            String      @id @default(cuid())
+  type          BattleType
+
+  // PvE
+  areaId        String?
+  wildCreature  Json?       // Snapshot of wild creature stats
+
+  // PvP
+  player1Id     String?
+  player2Id     String?
+
+  // Battle State
+  status        BattleStatus @default(ONGOING)
+  currentTurn   Int         @default(1)
+  turnHistory   Json[]      // Array of turn actions
+
+  // Result
+  winnerId      String?
+  rewardCoins   Int         @default(0)
+  rewardExp     Int         @default(0)
+  rewardItems   Json?       // [{itemId, quantity}, ...]
+  capturedCreature Json?    // Snapshot if captured
+
+  startedAt     DateTime    @default(now())
+  endedAt       DateTime?
+
+  // Relations
+  area          Area?       @relation(fields: [areaId], references: [id])
+  player1       User?       @relation("Player1Battles", fields: [player1Id], references: [id])
+  player2       User?       @relation("Player2Battles", fields: [player2Id], references: [id])
+
+  @@index([type])
+  @@index([status])
+  @@index([player1Id])
+  @@index([player2Id])
+}
+
+enum BattleType {
+  PVE_WILD
+  PVE_TRAINER
+  PVP_RANKED
+  PVP_CASUAL
+}
+
+enum BattleStatus {
+  WAITING
+  ONGOING
+  FINISHED
+  FLED
+  TIMEOUT
+}
+
+// ============ EVENTS ============
+
+model Event {
+  id              String   @id @default(cuid())
+  name            String   @unique
+  description     String
+  type            EventType
+
+  startDate       DateTime
+  endDate         DateTime
+
+  // Rewards (JSON: [{type: "item", itemId: "xxx", quantity: 5}, ...])
+  rewards         Json
+
+  // Requirements (JSON: {type: "battles_won", value: 10})
+  requirements    Json
+
+  bannerUrl       String?
+  isActive        Boolean  @default(true)
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  participations  EventParticipation[]
+
+  @@index([startDate, endDate])
+}
+
+enum EventType {
+  SEASONAL
+  SPECIAL
+  TOURNAMENT
+  DAILY_CHALLENGE
+}
+
+model EventParticipation {
+  id          String   @id @default(cuid())
+  userId      String
+  eventId     String
+
+  progress    Int      @default(0)
+  completed   Boolean  @default(false)
+  rewardClaimed Boolean @default(false)
+
+  joinedAt    DateTime @default(now())
+  completedAt DateTime?
+
+  // Relations
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  event       Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, eventId])
+  @@index([userId])
+  @@index([eventId])
+}
+
+// ============ ACHIEVEMENTS ============
+
+model Achievement {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String
+  category    AchievementCategory
+
+  iconUrl     String
+
+  // Requirements (JSON: {type: "battles_won", value: 100})
+  requirements Json
+
+  // Rewards (JSON: {coins: 500, items: [{itemId, qty}]})
+  rewards     Json
+
+  isSecret    Boolean  @default(false)
+
+  createdAt   DateTime @default(now())
+
+  // Relations
+  userAchievements UserAchievement[]
+}
+
+enum AchievementCategory {
+  BATTLE
+  COLLECTION
+  EXPLORATION
+  SOCIAL
+  SPECIAL
+}
+
+model UserAchievement {
+  id              String   @id @default(cuid())
+  userId          String
+  achievementId   String
+
+  progress        Int      @default(0)
+  completed       Boolean  @default(false)
+  rewardClaimed   Boolean  @default(false)
+
+  unlockedAt      DateTime @default(now())
+  completedAt     DateTime?
+
+  // Relations
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  achievement     Achievement @relation(fields: [achievementId], references: [id])
+
+  @@unique([userId, achievementId])
+  @@index([userId])
+}
+
+// ============ CHAT & MODERATION ============
+
+model ChatMessage {
+  id          String   @id @default(cuid())
+  userId      String
+  content     String
+
+  isEdited    Boolean  @default(false)
+  isDeleted   Boolean  @default(false)
+  deletedBy   String?
+  deleteReason String?
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([createdAt(sort: Desc)])
+  @@index([userId])
+}
+
+model Report {
+  id              String   @id @default(cuid())
+  reportedUserId  String
+  reportedBy      String
+
+  type            ReportType
+  reason          String
+  evidence        String?  // Screenshots, logs, etc
+
+  status          ReportStatus @default(PENDING)
+  resolvedBy      String?
+  resolution      String?
+
+  createdAt       DateTime @default(now())
+  resolvedAt      DateTime?
+
+  // Relations
+  reportedUser    User     @relation("ReportedUser", fields: [reportedUserId], references: [id])
+  reporter        User     @relation("ReportedBy", fields: [reportedBy], references: [id])
+
+  @@index([status])
+  @@index([reportedUserId])
+}
+
+enum ReportType {
+  SPAM
+  HARASSMENT
+  CHEATING
+  INAPPROPRIATE_NAME
+  OTHER
+}
+
+enum ReportStatus {
+  PENDING
+  REVIEWING
+  RESOLVED
+  DISMISSED
+}
+
+// ============ LOGS & ANALYTICS ============
+
+model GameLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  action    String
+  details   Json
+  ipAddress String?
+
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([action])
+  @@index([createdAt(sort: Desc)])
+}
+
+model Transaction {
+  id          String   @id @default(cuid())
+  userId      String
+  type        TransactionType
+
+  coinsChange Int
+  itemChanges Json?    // [{itemId, quantityChange}, ...]
+
+  reason      String
+  metadata    Json?
+
+  createdAt   DateTime @default(now())
+
+  @@index([userId])
+  @@index([createdAt(sort: Desc)])
+}
+
+enum TransactionType {
+  BATTLE_REWARD
+  SHOP_PURCHASE
+  EVENT_REWARD
+  ACHIEVEMENT_REWARD
+  ADMIN_GRANT
+  TRADE
+}
