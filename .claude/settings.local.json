@@ -12,7 +12,12 @@
       "Bash(node -e:*)",
       "Bash(npm run db:setup:*)",
       "Bash(npm run dev:*)",
-      "Bash(npm run db:seed:*)"
+      "Bash(npm run db:seed:*)",
+      "Bash(npm i:*)",
+      "Bash(git remote add:*)",
+      "Bash(git branch:*)",
+      "Bash(git push:*)",
+      "Bash(vercel login)"
     ]
   }
 }
